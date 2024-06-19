@@ -71,7 +71,7 @@ function Skill() {
         {/* <!-- Large Screen --> */}
 
         <div id="AddBtn" class="mt-9 mb-5 flex">
-          <button class="w-7 rounded-xl" onclick="addNewField()"><img src="add.png" alt="add image"/></button>
+          <button class="w-7 rounded-xl" onclick="addNewField()"><img src="add.png" alt="/"/></button>
           <p class="ml-5 text-lg font-semibold lg:text-xl">Add another skill</p>
         </div>
       </div>

@@ -45,8 +45,8 @@ function Education() {
 
     return (
         <>
-            <main id="main" className="mx-auto max-w-[590px] md:max-w-[680px] lg:max-w-[1200px]">
                 <Preview Name="Educations" Desc="Here add your academic details" />
+            <main id="main" className="mx-auto container lg:px-20 px-5">
 
                 <form onSubmit={handleSubmit} className="mt-2 lg:mt-10 w-full border rounded-xl shadow-2xl drop-shadow-2xl">
                     {educations.map((education) => (

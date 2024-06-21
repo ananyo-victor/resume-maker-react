@@ -1,84 +1,168 @@
-import React from 'react'
+import React, { useState } from 'react'
+import Preview from '../components/Preview'
 
 function Skill() {
+  const [skills, setSkills] = useState([{ id: 1, name: '', level: '' }]);
+
+  const handleChange = (event) => {
+    const { name, value, dataset } = event.target;
+    const newState = skills.map(item =>
+      item.id === parseInt(dataset.id) ? { ...item, [name]: value } : item
+    );
+    setSkills(newState);
+  };
+
+  const addField = () => {
+    const newField = {
+      id: skills.length + 1,
+      name: '',
+      level: ''
+    };
+    setSkills([...skills, newField]);
+  };
+
+  const removeField = (id) => {
+    setSkills(skills.filter(item => item.id !== id));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log({ skills });
+  };
+
   return (
     <>
-     <main class="mx-auto max-w-[590px]  md:max-w-[680px] lg:max-w-[1200px] pt-20">
-      <div class=" mt-8 flex items-center justify-between rounded-2xl ">
-        <div class="ml-6 mt-3">
-          <p class="text-3xl font-bold lg:text-4xl">Skills</p>
-          <p class="my-4 text-xl font-semibold lg:text-xl">Add your top skills here</p>
-        </div>
-        <button
-          class="mr-4 h-11 w-12 rounded-xl border-4 border-white font-bold hover:bg-white hover:text-pink-300 md:hidden"
-          onclick="preview1()">p</button>
-        <button
-          class="hide2 mr-4 h-10 rounded-xl border-4 border-white text-lg font-bold hover:bg-white hover:text-pink-300 md:w-28 lg:hidden"
-          onclick="preview1()">preview</button>
-        <button
-          class="hide mr-4 h-10 rounded-xl border-4 border-white text-lg font-semibold hover:bg-white hover:text-pink-400 md:w-28 lg:h-14 lg:w-36 lg:text-xl lg:font-bold"
-          onclick="preview1()">preview</button>
-      </div>
+      <main className="mx-auto max-w-screen md:max-w-[680px] lg:max-w-[1200px]">
+        <Preview Name='Skills' Desc='Add your top skills here' />
 
-      <div id="we" class="flex w-full flex-col justify-evenly">
-        <div id="sdiv1"
-          class="flex justify-between mt-5 pb-5 lg:hidden transparent-yellow rounded-xl border-2 border-white">
-          <div class="pl-9 md:pl-5 flex flex-col items-center" id="sdiv1_1">
-            <div class="mt-4" id="sdiv1_1_1">
-              <label for="Skill1" class="text-xl font-semibold" id="sskilllabel1">Skill</label><br />
-              <input id="sskillinput1" type="text" name="level"
-                class="h-14 w-[450px] border border-white rounded-xl pl-2 text-gray-400 md:w-[580px] mt-3"/>
+        <form id="we" className="flex w-full flex-col px-2" onSubmit={handleSubmit}>
+          {skills.map((skill) => (
+            <div key={skill.id}>
+
+              {/* Small Screen */}
+              <div id={`sdiv${skill.id}`} className="flex mt-5 lg:hidden rounded-xl border-2 border-white w-full shadow-xl">
+                <div className="flex flex-col w-full py-5 pl-3" id={`sdiv${skill.id}_1`}>
+                  <div className="w-full" id="sdiv1_1_1">
+                    <label
+                      htmlFor={`Skill${skill.id}`}
+                      className="text-xl font-semibold"
+                      id={`sskilllabel${skill.id}`}
+                      data-id={skill.id}
+                    >
+                      Skill
+                    </label><br />
+                    <input
+                      id={`sskillinput${skill.id}`}
+                      type="text"
+                      name="name"
+                      value={skill.name}
+                      data-id={skill.id}
+                      onChange={handleChange}
+                      className="h-14 border border-white rounded-xl pl-2 text-gray-400 md:w-[580px] mt-3 w-full shadow-xl"
+                    />
+                  </div>
+
+                  <div id="sdiv1-1-2" className="mt-4 w-full">
+                    <label
+                      id={`slevellabel${skill.id}`}
+                      htmlFor={`Level${skill.id}`}
+                      className="text-xl font-semibold"
+                    >
+                      Level
+                    </label><br />
+                    <select
+                      name="level"
+                      id={`sselectlevel${skill.id}`}
+                      value={skill.level}
+                      data-id={skill.id}
+                      onChange={handleChange}
+                      className="h-14 border border-white rounded-xl mt-3 w-full shadow-xl"
+                    >
+                      <option id={`soption${skill.id}_1`} value="default" className="text-base">Options</option>
+                      <option id={`soption${skill.id}_2`} value="high" className="text-base">Expert</option>
+                      <option id={`soption${skill.id}_3`} value="medium" className="text-base">Intermediate</option>
+                      <option id={`soption${skill.id}_4`} value="low" className="text-base">Beginner</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div id={`sdiv${skill.id}_2`} className='flex items-center mx-3'>
+                  <button type="button" className='h-fit w-fit p-2 shadow-xl rounded-xl' onClick={() => removeField(skill.id)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              {/* <!-- Small Screen --> */}
+
+              {/* Large Screen */}
+              <div id="ldiv1" className="lg:flex justify-evenly mt-5 py-5 hidden rounded-xl border-2 border-white drop-shadow-2xl bg-white">
+                <div id="ldiv1_1" className="mt-5">
+                  <label
+                    id={`lskilllabel${skill.id}`}
+                    htmlFor={`Skill${skill.id}`}
+                    className="text-xl font-semibold h-fit w-fit py-1 px-2 shadow-xl bg-white rounded-xl"
+                  >
+                    Skill
+                  </label><br />
+                  <input
+                    type="text"
+                    id={`lskillinput${skill.id}`}
+                    name="name"
+                    value={skill.name}
+                    placeholder='Enter your skill here'
+                    data-id={skill.id}
+                    onChange={handleChange}
+                    className="h-14 w-[450px] border border-white rounded-xl pl-2 my-5 text-lg drop-shadow-2xl shadow-2xl"
+                  />
+                </div>
+                <div id="ldiv1_2" className="mt-4">
+                  <label
+                    id={`llevellabel${skill.id}`}
+                    htmlFor={`Level${skill.id}`}
+                    className="text-xl font-semibold h-fit w-fit py-1 px-2 shadow-xl bg-white rounded-xl"
+                  >
+                    Level
+                  </label><br />
+                  <select
+                    name="level"
+                    id={`lselectlevel${skill.id}`}
+                    value={skill.level}
+                    data-id={skill.id}
+                    onChange={handleChange}
+                    className="h-14 w-[450px] border border-white rounded-xl pl-2 my-5 text-lg shadow-2xl drop-shadow-2xl"
+                  >
+                    <option id={`loption${skill.id}_1`} value="default" className="text-base">Options</option>
+                    <option id={`loption${skill.id}_2`} value="high" className="text-base">Expert</option>
+                    <option id={`loption${skill.id}_3`} value="medium" className="text-base">Intermediate</option>
+                    <option id={`loption${skill.id}_4`} value="low" className="text-base">Beginner</option>
+                  </select>
+                </div>
+                <div id={`ldiv${skill.id}_3`} className="w-20 flex justify-center items-center">
+                  <button type="button" id={`lbutton${skill.id}`} className="h-fit w-fit p-3 shadow-xl rounded-xl hover:scale-110" onClick={() => removeField(skill.id)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              {/* <!-- Large Screen --> */}
             </div>
-            <div id="sdiv1-1-2" class="mt-4">
-              <label id="slevellabel1" for="Level1" class="text-xl font-semibold">Level</label><br />
-                <select name="Level1" id="sselectlevel1"
-                  class="h-14 w-[450px] border border-white rounded-xl pl-2 md:w-[580px]  mt-3">
-                  <option id="soption1_1" value="default" class="text-base">Options</option>
-                  <option id="soption1_2" value="high" class="text-base">Expert</option>
-                  <option id="soption1_3" value="medium" class="text-base">Intermidiate</option>
-                  <option id="soption1_4" value="low" class="text-base">Beginner</option>
-                </select>
-            </div>
+          ))}
+          <div id="AddBtn" className="mt-9 mb-5 flex items-center">
+            <button type="button" className="w-fit h-fit p-2 rounded-xl shadow-xl hover:scale-110" onClick={addField}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </button>
+            <p className="ml-5 text-lg font-semibold lg:text-xl">Add another skill</p>
           </div>
-          <div id="sdiv1_2" class="w-20 flex justify-center items-center">
-            <button id="sbutton1" class="h-5 w-5" onclick="close2()"><img src="delete.png" alt="" srcset=""/></button>
-          </div>
-        </div>
-        {/* <!-- Small Screen --> */}
-
-        <div id="ldiv1"
-          class="lg:flex justify-evenly mt-5 pb-5 hide transparent-yellow rounded-xl border-4 border-white">
-          <div id="ldiv1_1" class="mt-4">
-            <label id="lskilllabel1" for="Skill1" class="text-xl font-semibold">Skill</label><br />
-            <input type="text" id="lskillinput1"
-              class="h-16 w-[450px] border border-white rounded-xl pl-2 lg:mt-4 lg:h-16 lg:text-xl">
-            </input>
-          </div>
-          <div id="ldiv1_2" class="mt-4">
-            <label id="llevellabel1" for="Level1" class="text-xl font-semibold">Level</label><br />
-              <select name="" id="lselectlevel1"
-                class="h-16 w-[450px] border border-white rounded-xl pl-2 lg:mt-4 lg:h-16 lg:text-xl">
-                <option id="loption1_1" value="default" class="text-base">Options</option>
-                <option id="loption1_2" value="high" class="text-base">Expert</option>
-                <option id="loption1_3" value="medium" class="text-base">Intermidiate</option>
-                <option id="loption1_4" value="low" class="text-base">Beginner</option>
-              </select>
-          </div>
-          <div id="ldiv1_3" class="mt-7 pt-7 w-20 flex justify-center items-center">
-            <button id="lbutton1" class="h-8 w-8" onclick="close2()"><img src="delete.png" alt="" srcset=""/></button>
-          </div>
-        </div>
-        {/* <!-- Large Screen --> */}
-
-        <div id="AddBtn" class="mt-9 mb-5 flex">
-          <button class="w-7 rounded-xl" onclick="addNewField()"><img src="add.png" alt="/"/></button>
-          <p class="ml-5 text-lg font-semibold lg:text-xl">Add another skill</p>
-        </div>
-      </div>
-      <div class="h-24 mt-5"></div>
-    </main> 
+        </form>
+        <div className="h-24 mt-5"></div>
+      </main>
     </>
-  )
+  );
 }
 
-export default Skill
+export default Skill;

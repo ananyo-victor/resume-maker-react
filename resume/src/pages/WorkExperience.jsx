@@ -1,63 +1,193 @@
-import React from 'react'
+import React, { useState } from 'react';
+import Preview from '../components/Preview';
 
 function WorkExperience() {
+  const [workExperiences, setWorkExperiences] = useState([
+    {
+      id: 1,
+      Position: '',
+      JobTitle: '',
+      StartDate: '',
+      EndDate: '',
+      Current: false,
+    }
+  ]);
+
+  const handleChange = (event) => {
+    const { name, value, dataset } = event.target;
+    const newState = workExperiences.map(item =>
+      item.id === parseInt(dataset.id) ? { ...item, [name]: value } : item
+    );
+    setWorkExperiences(newState);
+  };
+
+  const setPresentData = (id, checked) => {
+    const newState = workExperiences.map(item =>
+      item.id === id ? { ...item, EndDate: checked ? 'Present' : '', Current: checked } : item
+    );
+    setWorkExperiences(newState);
+  };
+
+  const addField = () => {
+    const newField = {
+      id: workExperiences.length + 1,
+      Position: '',
+      JobTitle: '',
+      StartDate: '',
+      EndDate: '',
+      Current: false,
+    };
+    setWorkExperiences([...workExperiences, newField]);
+  };
+
+  const removeField = (id) => {
+    setWorkExperiences(workExperiences.filter(item => item.id !== id));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log({ workExperiences });
+  };
+
   return (
     <>
-     <main class="mx-auto max-w-[590px] pt-20 md:max-w-[680px] lg:max-w-[1200px]">
-        <div class="mt-8 flex items-center justify-between rounded-2xl">
-          <div class="ml-6 mt-3">
-            <p class="text-3xl font-bold lg:text-4xl">Job Experience</p>
-            <p class="my-4 text-xl font-semibold lg:text-xl">Share your job experience from latest to old</p>
-          </div>
-          <button class="mr-4 h-11 w-12 rounded-xl border-2 border-white font-bold hover:bg-white hover:text-pink-300 md:hidden" onclick="preview1()">p</button>
-          <button class="hide2 mr-4 h-10 rounded-xl border-2 border-white text-lg font-bold hover:bg-white hover:text-pink-300 md:w-28 lg:hidden" onclick="preview1()">preview</button>
-          <button class="hide mr-4 h-10 rounded-xl border-4 border-white text-lg font-semibold hover:bg-white hover:text-pink-400 md:w-28 lg:h-14 lg:w-36 lg:text-2xl lg:font-bold" onclick="preview1()">preview</button>
+      <main className="mx-auto container lg:px-20 px-5">
+        <Preview Name='Work experience' Desc='Share your job experience from latest to old' />
+
+        <form className="w-full" onSubmit={handleSubmit} id="we">
+          {workExperiences.map((workExperience) => (
+            <div className='w-full px-3 my-3 rounded-xl lg:flex flex-row-reverse drop-shadow-xl shadow-xl' key={workExperience.id}>
+              <div className='flex justify-end pt-3 pr-3 lg:px-3'>
+                <button type="button" className='h-fit w-fit p-3 hover:scale-110 rounded-xl shadow-xl drop-shadow-xl' onClick={() => removeField(workExperience.id)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="w-full" id="LempJobDiv1">
+
+                <div className="flex justify-center rounded-xl border-2 border-b-0 border-white lg:py-5 lg:hidden" id="sEmpDiv1">
+                  <input
+                    type="text"
+                    name="Position"
+                    id={`sPosition${workExperience.id}`}
+                    placeholder="Position"
+                    className="h-14 w-[500px] rounded-xl border-2 border-white pl-2 my-3 md:w-[640px] shadow-xl"
+                    onChange={handleChange}
+                    data-id={workExperience.id}
+                    value={workExperience.Position}
+                  />
+                  {/* Small Screen */}
+                </div>
+
+                <div className="transparent-yellow flex justify-center rounded-xl lg:py-5 lg:hidden" id="sJobDiv1">
+                  <input
+                    type="text"
+                    name="JobTitle"
+                    id={`sJob_Title${workExperience.id}`}
+                    placeholder="Job Title"
+                    className="h-14 w-[500px] rounded-xl border-4 border-white pl-2 md:w-[640px] my-3 shadow-xl"
+                    onChange={handleChange}
+                    data-id={workExperience.id}
+                    value={workExperience.JobTitle}
+                  />
+                  {/* Small Screen */}
+                </div>
+
+                <div className="hidden rounded-xl border2 border-white lg:my-7 lg:flex lg:justify-evenly lg:py-5" id="SempJobDiv1">
+                  <div id="lEmpDiv1">
+                    <label id="lempLabel1" htmlFor={`Position${workExperience.id}`} className="lg:text-xl lg:font-semibold">Position</label><br />
+                    <input
+                      type="text"
+                      name="Position"
+                      id={`lPosition${workExperience.id}`}
+                      placeholder="Position"
+                      className="h-14 w-[500px] rounded-xl border-2 border-white pl-2 lg:mt-3 text-lg drop-shadow-xl"
+                      onChange={handleChange}
+                      data-id={workExperience.id}
+                      value={workExperience.Position}
+                    />
+                    {/* Large Screen */}
+                  </div>
+                  <div id="lJobDiv1">
+                    <label id="ljobdivlabel1" htmlFor={`JobTitle${workExperience.id}`} className="lg:text-xl lg:font-semibold">Job Title</label><br />
+                    <input
+                      type="text"
+                      name="JobTitle"
+                      id={`lJob_Title${workExperience.id}`}
+                      placeholder="Job Title"
+                      className="h-14 w-[500px] rounded-xl border-4 border-white pl-2 lg:mt-3 text-lg drop-shadow-xl"
+                      onChange={handleChange}
+                      data-id={workExperience.id}
+                      value={workExperience.JobTitle}
+                    />
+                    {/* Large Screen */}
+                  </div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row justify-evenly rounded-2xl lg:py-4" id="StartEndDiv1">
+                  <div id="StartDiv1" className='flex flex-col justify-center lg:block'>
+                    <label htmlFor={`StartDate${workExperience.id}`} className="hidden lg:block text-lg lg:font-semibold py-3">Start Date</label>
+
+                    <input
+                      type="date"
+                      name="StartDate"
+                      id={`StartDate${workExperience.id}`}
+                      placeholder="Start Date"
+                      className="h-14 w-full rounded-xl border-2 border-white pl-2 md:w-[310px] lg:w-[500px] lg:text-xl my-3 drop-shadow-xl"
+                      onChange={handleChange}
+                      data-id={workExperience.id}
+                      value={workExperience.StartDate}
+                    />
+                  </div>
+
+                  <div className="flex flex-col" id="EndAllDiv1">
+                    <div id="EndDiv1">
+                      <label htmlFor={`EndDate${workExperience.id}`} className="hidden lg:block text-lg lg:font-semibold py-3">End Date</label>
+
+                      <input
+                        type="date"
+                        name="EndDate"
+                        id={`EndDate${workExperience.id}`}
+                        placeholder="End Date"
+                        className="h-14 w-full rounded-xl border-4 border-white pl-2 md:w-[310px] lg:w-[500px] lg:text-xl my-3 drop-shadow-xl"
+                        onChange={handleChange}
+                        data-id={workExperience.id}
+                        value={workExperience.Current ? '' : workExperience.EndDate}
+                        disabled={workExperience.Current}
+                      />
+                    </div>
+                    <span id="EndSpan1" className="my-4 lg:mt-4 lg:my-0 flex w-[170px] justify-between md:w-[220px] lg:w-[230px]">
+                      <input
+                        type="checkbox"
+                        name="Current"
+                        id={`Current${workExperience.id}`}
+                        className="rounded-xl md:w-5"
+                        onChange={(e) => setPresentData(workExperience.id, e.target.checked)}
+                        checked={workExperience.Current}
+                      />
+                      <label htmlFor={`Current${workExperience.id}`} className="md:font-semibold lg:text-lg">I currently work here</label>
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          ))}
+        </form>
+
+        <div className="mt-3 flex items-center" id="AddBtn">
+          <button type="button" className="w-fit h-fit p-2 shadow-xl drop-shadow-xl rounded-xl hover:scale-110" onClick={addField} id="addBtn1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </button>
+          <p className="ml-5 text-base lg:text-lg font-semibold">Add more job Experience</p>
         </div>
-
-        {/* Small screen */}
-
-        <div class="w-full" id="we">
-          <div class="" id="LempJobDiv1">
-            <div class="transparent-yellow mt-7 flex justify-center rounded-t-xl border-4 border-b-0 border-white py-5 lg:hidden" id="sEmpDiv1">
-              <input type="text" name="Employeer" id="sEmployeer1" placeholder="Employeer" class="h-16 w-[500px] rounded-xl border-4 border-white pl-2 md:w-[640px]" onkeyup="generateResume()" />
-              {/* Small Screen */}
-            </div>
-            <div class="transparent-yellow flex justify-center rounded-b-xl border-4 border-t-0 border-white py-5 lg:hidden" id="sJobDiv1">
-              <input type="text" name="Job Title" id="sJob_Title1" placeholder="Job Title" class="h-16 w-[500px] rounded-xl border-4 border-white pl-2 md:w-[640px]" onkeyup="generateResume()" />
-              {/* Small Screen */}
-            </div>
-
-            <div class="hide transparent-yellow rounded-xl border-4 border-white lg:mt-7 lg:flex lg:justify-evenly lg:py-5" id="SempJobDiv1">
-              <div id="lEmpDiv1">
-                <label id="lempLabel1" for="Employeer" class="lg:text-xl lg:font-semibold">Employeer</label><br />
-                <input type="text" name="Employeer" id="lEmployeer1" placeholder="Employeer" class="h-16 w-[500px] rounded-xl border-4 border-white pl-2 lg:mt-3 lg:h-16 lg:text-xl" onkeyup="generateResume()" />
-                {/* Large Screen */}
-              </div>
-              <div id="lJobDiv1">
-                <label id="ljobdivlabel1" for="Job Title" class="lg:text-xl lg:font-semibold">Job Title</label><br />
-                <input type="text" name="Job Title" id="lJob_Title1" placeholder="Job Title" class="h-16 w-[500px] rounded-xl border-4 border-white pl-2 lg:mt-3 lg:h-16 lg:text-xl" onkeyup="generateResume()" />
-                {/* Large Screen */}
-              </div>
-            </div>
-
-            <div class="transparent-pink mt-8 mb-6 flex justify-evenly rounded-2xl border-4 border-white py-4" id="StartEndDiv1">
-              <div id="StartDiv1"><label for="Start Date" class="hide lg:text-xl lg:font-semibold">Start Date</label><br /><input type="text" name="Start Date" id="StartDate1" placeholder="Start Date" class="h-16 w-[227px] rounded-xl border-4 border-white pl-2 md:w-[310px] lg:mt-3 lg:h-16 lg:w-[500px] lg:text-xl" onkeyup="generateResume()" /></div>
-
-              <div class="flex flex-col" id="EndAllDiv1">
-                <div id="EndDiv1"><label for="End Date" class="hide lg:text-xl lg:font-semibold">End Date</label><br /><input type="text" name="End Date" id="EndDate1" placeholder="End Date" class="h-16 w-[227px] rounded-xl border-4 border-white pl-2 md:w-[310px] lg:mt-3 lg:h-16 lg:w-[500px] lg:text-xl" /></div>
-                <span id="EndSpan1" class="my-4 flex w-[170px] justify-between md:w-[220px] lg:w-[230px]"><input type="checkbox" name="Current" id="Current" class="rounded-xl md:w-5 md:border-4 md:border-white" onclick="present()" /><label for="Current" class="md:text-xl md:font-semibold lg:text-xl">I currently work here</label></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-3 flex" id="AddBtn">
-            <button class="w-7 rounded-xl" onclick="addNewWEField()" id="addBtn1"><img src="add.png" alt="/" /></button>
-            <p class="ml-5 text-lg font-semibold lg:text-xl">Add more job Experience</p>
-          </div>
-        </div>
-      </main> 
+      </main>
     </>
-  )
+  );
 }
 
-export default WorkExperience
+export default WorkExperience;

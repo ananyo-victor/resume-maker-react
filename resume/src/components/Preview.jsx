@@ -3,7 +3,7 @@ import React from 'react'
 function Preview(props) {
   return (
     <>
-      <div className="mt-2 lg:mt-8 flex items-center justify-between w-full">
+      <div className="my-8 lg:mt-8 flex items-center justify-between container">
         <div className="ml-5 w-2/3">
           <p className="text-2xl font-bold lg:text-4xl">{props.Name}</p>
           <p className="mt-2 lg:mt-4 text-base font-semibold lg:text-xl">{props.Desc}</p>

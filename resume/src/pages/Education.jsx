@@ -131,7 +131,7 @@ function Education() {
 
                             {/* Large Screen */}
                             <div className="justify-evenly lg:flex lg:flex-col mb-5 hidden">
-                                <button className='flex justify-end pt-5 pr-5' onClick={()=>removeField(education.id)}>
+                                <button className='flex justify-end pt-5 pr-5 transform active:scale-75 transition-transform' onClick={()=>removeField(education.id)}>
                                     <span className='h-fit w-fit p-3 rounded-xl shadow-xl'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                     </svg></span>
@@ -223,7 +223,7 @@ function Education() {
                     ))}
                 </form>
                 <div className="mt-3 flex ml-5">
-                    <button className="rounded-xl w-fit h-fit drop-shadow-2xl shadow-2xl" onClick={addField}>
+                    <button className="rounded-xl w-fit h-fit drop-shadow-2xl shadow-2xl transform active:scale-75 transition-transform" onClick={addField}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>

@@ -31,7 +31,7 @@ function Preview(props) {
       {isModalOpen && (
         <div className="fixed max-h-screen w-screen inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black/80" onClick={closeModal}></div>
-          <div className="relative z-10 size-[90%] flex justify-center px-5">
+          <div className="relative z-10 w-full h-full flex justify-center items-center">
             <Temp1 />
           </div>
         </div>

@@ -31,7 +31,7 @@ function Achievement() {
 
   return (
     <>
-      <main className="mx-auto max-w-screen md:max-w-[680px] lg:max-w-[1200px] px-3">
+      <main className=" mx-auto max-w-screen md:max-w-[680px] lg:max-w-[1200px] px-3">
         <Preview />
 
         <form className="w-full" onSubmit={handleSubmit}>

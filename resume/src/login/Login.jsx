@@ -1,17 +1,21 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../FormContext';
+import { UserContext } from '../UserContext';
+// import { AuthContext } from '../FormContext';
 
 
 
 function Login() {
+    const [_id, set_id] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useContext(AuthContext);
+    const { setUser } = useContext(UserContext);
+    // const { login } = useContext(AuthContext);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -21,16 +25,70 @@ function Login() {
                 email: username,
                 password: password
             });
-            console.log(response.data);
+            // console.log(response.data);
             localStorage.setItem('auth-token', response.data.token);
-            // console.log(Math.floor(Date.now()));
-            login();
+            localStorage.setItem('login-time', response.data.time);
             setTimeout(() => {
                 localStorage.removeItem('auth-token');
+                localStorage.removeItem('login-time');
                 // terminationPage = true;
             }, 3600000);
 
             navigate('/');
+            try {
+                const response_get = await axios.get('http://localhost:3001/resume/receive');
+                const data = response_get.data;
+                // console.log("below is the data");
+                const temp_id = data[data.length - 1]._id
+
+                // console.log(temp_id);
+
+                if (temp_id) {
+                    try {
+                        // console.log("it is also here");
+                        set_id(temp_id);
+                        setUser(temp_id);
+                        Cookies.set('user', temp_id, { expires: 7 });
+                        console.log(temp_id);
+                        
+                    } catch (error) {
+                        // console.log("not getting data");
+                    }
+                    // console.log(_id);
+
+                }
+
+            } catch (error) {
+                console.error('Blank document', error);
+                await axios.post('http://localhost:3001/resume/create-dummy', {
+                    users: {
+                        id: "1",
+                        Fname: "",
+                        Mname: "",
+                        Lname: "",
+                        Proffession: "",
+                        Country: "",
+                        City: "",
+                        Address: "",
+                        PhoneNumber: "",
+                        Email: ""
+                    },
+                    workExperience: [],
+                    educations: [],
+                    strength: [],
+                    skills: [],
+                    achievement: [],
+                    hobbie: [],
+                    certificate: [],
+                    projects: []
+                }, {
+                    headers: {
+                        'auth-token': response.data.token,
+                    }
+                });
+
+            }
+
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message) {
                 setError(error.response.data.message);

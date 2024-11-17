@@ -1,8 +1,10 @@
-import React from 'react'
+import React, {useContext} from 'react'
+import { UserContext } from '../../UserContext'
 import { useLocation, Link } from 'react-router-dom'
 
 function LeftNavigation({ formRef }) {
   const location = useLocation();
+  const { button } = useContext(UserContext);
   let des;
   if (location.pathname === '/work-experience') {
     des = '/basic-details'
@@ -25,7 +27,7 @@ function LeftNavigation({ formRef }) {
   return (
     <>
       <div className='absolute z-30 h-screen w-fit flex justify-center items-center px-3 opacity-50 hover:opacity-100 hover:from-white bg-gradient-to-r from-gray-300 via-sky-50 to-white '>
-        <button className='size-fit p-3 text-2xl font-semibold drop-shadow-2xl shadow-2xl rounded-xl bg-white hover:bg-blue-600 hover:text-white' disabled={location.pathname === '/basic-details'} type='submit' onClick={handlePrevClick}><Link to={des}>Prev</Link></button>
+        <button className='size-fit p-3 text-2xl font-semibold drop-shadow-2xl shadow-2xl rounded-xl bg-white hover:bg-blue-600 hover:text-white' disabled={location.pathname === '/basic-details' && button} type='submit' onClick={handlePrevClick}><Link to={des}>Prev</Link></button>
       </div>
     </>
   )

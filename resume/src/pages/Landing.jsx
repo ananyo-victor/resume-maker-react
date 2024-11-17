@@ -1,13 +1,31 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { AuthContext } from '../FormContext'
+// import { AuthContext } from '../FormContext'
 
 
+
+function checked() {
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+        const loginTime = localStorage.getItem('login-time');
+        // console.log(loginTime);
+        
+        const currentTime = Date.now();
+        // console.log(currentTime);
+        
+        if (currentTime - loginTime > 3600000) {
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('login-time');
+        }
+
+    }
+}
 function Landing() {
-    const { isLoggedIn } = useContext(AuthContext);
+    checked();
+    // const { isLoggedIn } = useContext(AuthContext);
     return (
         <div>
-            <body className="bg-gray-100 text-gray-900">
+            <div className="bg-gray-100 text-gray-900">
                 {/* Header */}
                 <header className="bg-white shadow-md">
                     <div className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -90,7 +108,7 @@ function Landing() {
                         <p>&copy; 2024 ResumeMaker. All rights reserved.</p>
                     </div>
                 </footer>
-            </body>
+            </div>
 
         </div>
     )

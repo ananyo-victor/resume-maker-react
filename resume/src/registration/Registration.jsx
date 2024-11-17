@@ -43,7 +43,7 @@ function Registration() {
                 <div className="container flex items-center justify-center min-h-screen px-6 mx-auto">
                     <form className="w-full max-w-md" onSubmit={handleLogin}>
                         {error && <div className="text-red-600">{error}</div>}
-                        <div class="flex justify-center mx-auto">
+                        <div className="flex justify-center mx-auto">
                             <p className='text-white capitalize font-semibold text-4xl font-sans'>Resume Maker</p>
                         </div>
                         <div className="flex items-center justify-center mt-6">

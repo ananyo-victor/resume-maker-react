@@ -13,7 +13,7 @@ import RightNavigation from "./components/hover_reveal_navigation_arrow/RightNav
 import Login from './login/Login';
 import Registration from './registration/Registration';
 import Landing from './pages/Landing';
-import { AuthProvider } from './FormContext';
+// import { AuthProvider } from './FormContext';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AccountSetting from './pages/Dashboard/AccountSetting';
 import ConnectedAccounts from './pages/Dashboard/ConnectedAccounts';
@@ -30,7 +30,7 @@ import Account from './pages/Dashboard/Account';
 function App() {
   const formRef = useRef(null);
   return (
-    <AuthProvider>
+    
       <Router>
 
         <div className="h-[calc(100vh-60px)] w-full relative">
@@ -61,7 +61,7 @@ function App() {
         </div>
 
       </Router>
-    </AuthProvider>
+    
   );
 }
 

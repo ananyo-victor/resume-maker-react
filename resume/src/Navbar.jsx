@@ -20,7 +20,9 @@ const names2 = [
 ];
 function Navbar() {
   const location = useLocation();
-
+  const logout = (e) => {
+    localStorage.removeItem('auth-token');
+  }
   return (
     <>
       <nav className="flex h-[60px] w-full items-center justify-between rounded-xl shadow-md md:w-full">
@@ -74,7 +76,7 @@ function Navbar() {
             {(location.pathname === '/dashboard' || location.pathname === '/account' || location.pathname === '/my-resume' || location.pathname === '/create-resume' || location.pathname === '/account-setting') && <div>
               <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 mx-3">Home</Link>
               <Link to="/account" className="text-gray-600 hover:text-blue-600 mx-3">Account</Link>
-              <Link to="/" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Log Out</Link>
+              <Link to="/" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-red-700" onClick={logout}>Log Out</Link>
             </div>
             }
           </ul>

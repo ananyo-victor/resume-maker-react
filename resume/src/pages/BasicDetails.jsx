@@ -1,33 +1,97 @@
-import React, { useState, useEffect, forwardRef } from 'react'
+import React, { useState, useEffect, forwardRef, useContext } from 'react'
+import { UserContext } from '../UserContext';
 import Preview from '../components/Preview';
+import axios from 'axios';
 // import axios from 'axios';
 
 const BasicDetails = forwardRef(({ formRef }, ref) => {
+  const { user } = useContext(UserContext);
+  const { setButton } = useContext(UserContext);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [inputs, setInputs] = useState({
-      // Fname: '',
-      // Mname: '',
-      // Lname: '',
-      // Email: '',
-      // Phone: '',
-      // Address: '',
-      // City: '',
-      // Country: '',
-      // Proffession: ''
+    id: "",
+    _id: "",
+    Fname: "",
+    Mname: "",
+    Lname: "",
+    Email: "",
+    PhoneNumber: "",
+    Address: "",
+    City: "",
+    Country: "",
+    Proffession: ""
   });
-  useEffect(()=>{
-    // axios.get(/);
-  },[])
-
+  useEffect(() => {
+    fetchResume();
+  }, []);
+  useEffect(() => {
+    // Only log inputs if they are loaded
+    if (isLoaded) {
+      console.log("Inputs loaded:", inputs);
+      setButton(false);
+      // sendToBackend(); // Call backend after inputs are updated
+    }
+  }, [inputs, isLoaded]);
+  const fetchResume = async () => {
+    const data = await axios.get('http://localhost:3001/resume/receive');
+    const resume = data.data[0];
+    console.log(resume);
+    try {
+      setInputs({
+        _id: resume.users._id ?? "",
+        Fname: resume.users.Fname ?? "",
+        Mname: resume.users.Mname ?? "",
+        Lname: resume.users.Lname ?? "",
+        Email: resume.users.Email ?? "",
+        PhoneNumber: resume.users.PhoneNumber ?? "",
+        Address: resume.users.Address ?? "",
+        City: resume.users.City ?? "",
+        Country: resume.users.Country ?? "",
+        Proffession: resume.users.Proffession ?? ""
+      });
+      setIsLoaded(true); // Mark as loaded
+    } catch (error) {
+      console.log("not setting");
+    }
+    console.log(inputs);
+  }
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setInputs(values => ({ ...values, [name]: value }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Form Submitted");
-    // alert(inputs);
+    // alert("Form Submitted");
+    // console.log(inputs);
+    // try {
+    //   const response = await axios.post('http://localhost:3001/resume/upload/users', inputs);
+    // //   // console.log(response.data);
+    // } catch (error) {
+    //   console.error(error);
+    //   // throw error;
+    // }
+    axios.put(`http://localhost:3001/resume/users/${inputs._id}`, inputs)
+      .then(response => {
+        console.log('Data saved successfully:', response.data);
+      })
+      .catch(error => {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          console.error('Error Status:', error.response.status);
+          console.error('Error Data:', error.response.data);
+          console.error('Error Headers:', error.response.headers);
+        } else if (error.request) {
+          // Request was made but no response was received
+          console.error('No response received:', error.request);
+        } else {
+          // Something happened in setting up the request
+          console.error('Error Message:', error.message);
+        }
+        console.error('Request Config:', error.config);
+      });
+
   }
   return (
     <>
@@ -107,8 +171,8 @@ const BasicDetails = forwardRef(({ formRef }, ref) => {
             <div className="lg:my-5 lg:flex justify-between items-center">
               <div className="w-full lg:max-w-[460px] md:max-w-[620px] max-w-[520px]">
                 <label htmlFor="Phone Number" className="hidden lg:inline lg:text-xl lg:font-semibold hide">Phone Number</label><br />
-                <input type="number" name="Phone" id="PhoneNumber" placeholder="Phone Number"
-                  className="pl-3 mt-3 border border-white rounded-xl h-16 w-full lg:max-w-[460px] shadow-xl drop-shadow-2xl" value={inputs.Phone} onChange={handleChange} />
+                <input type="number" name="PhoneNumber" id="PhoneNumber" placeholder="Phone Number"
+                  className="pl-3 mt-3 border border-white rounded-xl h-16 w-full lg:max-w-[460px] shadow-xl drop-shadow-2xl" value={inputs.PhoneNumber} onChange={handleChange} />
               </div>
               <div className="w-full lg:max-w-[460px] md:max-w-[620px] max-w-[520px]">
                 <label htmlFor="Email" className="hidden lg:inline lg:text-xl lg:font-semibold hide">Email</label><br />

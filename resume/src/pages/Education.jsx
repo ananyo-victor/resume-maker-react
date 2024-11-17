@@ -1,17 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, forwardRef, useContext } from 'react';
+import { UserContext } from '../UserContext';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 import Preview from '../components/Preview';
 
-function Education() {
+const Education = forwardRef(({ formRef }, ref) => {
+    const user = Cookies.get('user');
+    const { setButton } = useContext(UserContext);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [educations, setEducations] = useState([
         {
-            id: 1, EName: '',
-            ECity: '',
-            EState: '',
-            EDegree: '',
-            EField: '',
-            EPassingYear: ''
+            _id: "",
+            id: 1,
+            EName: "",
+            ECity: "",
+            EState: "",
+            EDegree: "",
+            EField: "",
+            EPassingYear: ""
         }
     ]);
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        // Only log inputs if they are loaded
+        if (isLoaded) {
+            console.log("Inputs loaded:", educations);
+            setButton(false);
+            // sendToBackend(); // Call backend after inputs are updated
+        }
+    }, [educations, isLoaded]);
+
+
+    const fetchData = async () => {
+        try {
+            const data = await axios.get(`http://localhost:3001/resume/receive`);
+            console.log(data);
+            // console.log(user);
+
+            for (let i in data.data) {
+                // console.log(data.data[i]._id);
+                if (user === data.data[i]._id) {
+                    console.log("matched");
+                    setEducations(data.data[i].educations.map(edu => ({
+                        _id: edu._id ?? "",
+                        id: edu.id ?? "",
+                        EName: edu.EName ?? "",
+                        ECity: edu.ECity ?? "",
+                        EState: edu.EState ?? "",
+                        EDegree: edu.EDegree ?? "",
+                        EField: edu.EField ?? "",
+                        EPassingYear: edu.EPassingYear ?? ""
+                    })));
+                    break;
+                }
+                else {
+                    setEducations(educations.map(edu => ({
+                        _id: edu._id ?? "",
+                        id: edu.id ?? "",
+                        EName: edu.EName ?? "",
+                        ECity: edu.ECity ?? "",
+                        EState: edu.EState ?? "",
+                        EDegree: edu.EDegree ?? "",
+                        EField: edu.EField ?? "",
+                        EPassingYear: edu.EPassingYear ?? ""
+                    })));
+                }
+            }
+
+            setIsLoaded(true); // Mark as loaded
+        } catch (error) {
+            console.error('Error loading work experiences:', error);
+        }
+    };
 
     const handleChange = (event) => {
         const { name, value, dataset } = event.target;
@@ -23,7 +86,7 @@ function Education() {
 
     const addField = () => {
         const newField = {
-            id: educations.length + 1,
+            id: educations.length ? educations[educations.length - 1].id + 1 : 1,
             EName: '',
             ECity: '',
             EState: '',
@@ -38,17 +101,49 @@ function Education() {
         setEducations(educations.filter(item => item.id !== id));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log({ educations });
+        console.log("the length is" + educations.length);
+
+    for (const item of educations) {
+      try {
+        // console.log(item.Company);
+        if (item._id) {
+          console.log('put');
+          // If the item has an _id, it's an existing item and should be updated
+          await axios.put(`http://localhost:3001/resume/educations/${item._id}`, item);
+        } else {
+          console.log('post');
+          console.log(item);
+          await axios.post(`http://localhost:3001/resume/upload/educations/${user}`, item,
+          ).then(response => {
+            console.log('Data saved successfully:', response.data);
+          });
+        }
+      } catch (error) {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          console.error('Error Status:', error.response.status);
+          console.error('Error Data:', error.response.data);
+          console.error('Error Headers:', error.response.headers);
+        } else if (error.request) {
+          // Request was made but no response was received
+          console.error('No response received:', error.request);
+        } else {
+          // Something happened in setting up the request
+          console.error('Error Message:', error.message);
+        }
+        console.error('Request Config:', error.config);
+      }
+    }
     };
 
     return (
         <>
-                <Preview Name="Educations" Desc="Here add your academic details" />
+            <Preview Name="Educations" Desc="Here add your academic details" />
             <main id="main" className="mx-auto container lg:px-20 px-5">
 
-                <form onSubmit={handleSubmit} className="mt-2 lg:mt-10 w-full border rounded-xl shadow-2xl drop-shadow-2xl">
+                <form onSubmit={handleSubmit} ref={formRef} className="mt-2 lg:mt-10 w-full border rounded-xl shadow-2xl drop-shadow-2xl">
                     {educations.map((education) => (
                         <div key={education.id}>
                             <div className='lg:hidden px-3'>
@@ -131,7 +226,7 @@ function Education() {
 
                             {/* Large Screen */}
                             <div className="justify-evenly lg:flex lg:flex-col mb-5 hidden">
-                                <button className='flex justify-end pt-5 pr-5 transform active:scale-75 transition-transform' onClick={()=>removeField(education.id)}>
+                                <button className='flex justify-end pt-5 pr-5 transform active:scale-75 transition-transform' onClick={() => removeField(education.id)}>
                                     <span className='h-fit w-fit p-3 rounded-xl shadow-xl'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                     </svg></span>
@@ -233,6 +328,6 @@ function Education() {
             </main>
         </>
     );
-}
+})
 
 export default Education;

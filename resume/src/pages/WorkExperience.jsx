@@ -1,52 +1,146 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, forwardRef, useContext } from 'react';
+import { UserContext } from '../UserContext';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 import Preview from '../components/Preview';
 
-function WorkExperience() {
-  const [workExperiences, setWorkExperiences] = useState([
+const WorkExperience = forwardRef(({ formRef }, ref) => {
+  const user = Cookies.get('user');
+  const { setButton } = useContext(UserContext);
+  const [isLoaded, setIsLoaded] = useState(false); 
+  const [workExperience, setWorkExperience] = useState([
     {
-      id: 1,
-      Position: '',
-      JobTitle: '',
-      StartDate: '',
-      EndDate: '',
+      _id: "",
+      id: 1, // Unique ID using timestamp
+      Position: "",
+      Company: "",
+      StartDate: "",
+      EndDate: "",
       Current: false,
     }
   ]);
 
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Only log inputs if they are loaded
+    if (isLoaded) {
+      console.log("Inputs loaded:", workExperience);
+      setButton(false);
+      // sendToBackend(); // Call backend after inputs are updated
+    }
+  }, [workExperience, isLoaded]);
+
+  const fetchData = async () => {
+    try {
+      const data = await axios.get(`http://localhost:3001/resume/receive`);
+      console.log(data);
+      // console.log(user);
+
+      for (let i in data.data) {
+        // console.log(data.data[i]._id);
+        if (user === data.data[i]._id) {
+          console.log("matched");
+          setWorkExperience(data.data[i].workExperience.map(work => ({
+            _id: work._id ?? "",
+            id: work.id ?? "",
+            Position: work.Position ?? "",
+            Company: work.Company ?? "",
+            StartDate: work.StartDate ?? "",
+            EndDate: work.EndDate ?? "",
+            Current: work.Current ?? ""
+          })));
+          break;
+        }
+        else {
+          setWorkExperience(workExperience.map(work => ({
+            _id: work._id ?? "",
+            id: work.id ?? "",
+            Position: work.Position ?? "",
+            Company: work.Company ?? "",
+            StartDate: work.StartDate ?? "",
+            EndDate: work.EndDate ?? "",
+            Current: work.Current ?? ""
+          })));
+        }
+      }
+
+      setIsLoaded(true); // Mark as loaded
+      setError()
+      setSuccess()
+    } catch (error) {
+      console.error('Error loading work experiences:', error);
+    }
+  };
+
   const handleChange = (event) => {
-    const { name, value, dataset } = event.target;
-    const newState = workExperiences.map(item =>
-      item.id === parseInt(dataset.id) ? { ...item, [name]: value } : item
+    const { name, value, dataset } = event.target; // Get field name and value
+    const id = parseInt(dataset.id); // Convert dataset id to integer
+    // console.log(`Updating ID: ${id}, Field: ${name}, Value: ${value}`);
+    setWorkExperience((prevExperiences) =>
+      prevExperiences.map((item) =>
+        item.id === id ? { ...item, [name]: value } : item // Update only the matching item
+      )
     );
-    setWorkExperiences(newState);
   };
 
   const setPresentData = (id, checked) => {
-    const newState = workExperiences.map(item =>
+    const newState = workExperience.map(item =>
       item.id === id ? { ...item, EndDate: checked ? 'Present' : '', Current: checked } : item
     );
-    setWorkExperiences(newState);
-  };
-
-  const addField = () => {
-    const newField = {
-      id: workExperiences.length + 1,
-      Position: '',
-      JobTitle: '',
-      StartDate: '',
-      EndDate: '',
-      Current: false,
-    };
-    setWorkExperiences([...workExperiences, newField]);
+    setWorkExperience(newState);
   };
 
   const removeField = (id) => {
-    setWorkExperiences(workExperiences.filter(item => item.id !== id));
+    setWorkExperience(workExperience.filter(item => item.id !== id));
   };
 
-  const handleSubmit = (event) => {
+  const addField = () => {
+    const newId = workExperience.length ? workExperience[workExperience.length - 1].id + 1 : 1;
+    setWorkExperience([...workExperience, { id: newId, Position: '', Company: '', StartDate: '', EndDate: '', Current: false }]);
+  };
+
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log({ workExperiences });
+    console.log("the length is" + workExperience.length);
+
+    for (const item of workExperience) {
+      try {
+        // console.log(item.Company);
+        if (item._id) {
+          console.log('put');
+          // If the item has an _id, it's an existing item and should be updated
+          await axios.put(`http://localhost:3001/resume/workExperiences/${item._id}`, item);
+        } else {
+          console.log('post');
+          console.log(item);
+          await axios.post(`http://localhost:3001/resume/upload/workExperiences/${user}`, item,
+          ).then(response => {
+            console.log('Data saved successfully:', response.data);
+          });
+        }
+      } catch (error) {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          console.error('Error Status:', error.response.status);
+          console.error('Error Data:', error.response.data);
+          console.error('Error Headers:', error.response.headers);
+        } else if (error.request) {
+          // Request was made but no response was received
+          console.error('No response received:', error.request);
+        } else {
+          // Something happened in setting up the request
+          console.error('Error Message:', error.message);
+        }
+        console.error('Request Config:', error.config);
+      }
+    }
   };
 
   return (
@@ -54,8 +148,11 @@ function WorkExperience() {
       <main className="mx-auto container lg:px-20 px-5">
         <Preview Name='Work experience' Desc='Share your job experience from latest to old' />
 
-        <form className="w-full" onSubmit={handleSubmit} id="we">
-          {workExperiences.map((workExperience) => (
+        {error && <p className="text-red-500">{error}</p>}
+        {success && <p className="text-green-500">{success}</p>}
+
+        <form className="w-full" onSubmit={handleSubmit} id="we" ref={formRef}>
+          {workExperience.map((workExperience) => (
             <div className='w-full px-3 my-3 rounded-xl lg:flex flex-row-reverse drop-shadow-xl shadow-xl' key={workExperience.id}>
               <div className='flex justify-end pt-3 pr-3 lg:px-3'>
                 <button type="button" className='h-fit w-fit p-3 hover:scale-110 rounded-xl shadow-xl drop-shadow-xl' onClick={() => removeField(workExperience.id)}>
@@ -84,13 +181,13 @@ function WorkExperience() {
                 <div className="transparent-yellow flex justify-center rounded-xl lg:py-5 lg:hidden" id="sJobDiv1">
                   <input
                     type="text"
-                    name="JobTitle"
-                    id={`sJob_Title${workExperience.id}`}
-                    placeholder="Job Title"
+                    name="Company"
+                    id={`sComapny${workExperience.id}`}
+                    placeholder="Company"
                     className="h-14 w-[500px] rounded-xl border-4 border-white pl-2 md:w-[640px] my-3 shadow-xl"
                     onChange={handleChange}
                     data-id={workExperience.id}
-                    value={workExperience.JobTitle}
+                    value={workExperience.Company}
                   />
                   {/* Small Screen */}
                 </div>
@@ -111,16 +208,16 @@ function WorkExperience() {
                     {/* Large Screen */}
                   </div>
                   <div id="lJobDiv1">
-                    <label id="ljobdivlabel1" htmlFor={`JobTitle${workExperience.id}`} className="lg:text-xl lg:font-semibold">Job Title</label><br />
+                    <label id="ljobdivlabel1" htmlFor={`Company${workExperience.id}`} className="lg:text-xl lg:font-semibold">Company</label><br />
                     <input
                       type="text"
-                      name="JobTitle"
-                      id={`lJob_Title${workExperience.id}`}
-                      placeholder="Job Title"
+                      name="Company"
+                      id={`lComapny${workExperience.id}`}
+                      placeholder="Company"
                       className="h-14 w-[500px] rounded-xl border-4 border-white pl-2 lg:mt-3 text-lg drop-shadow-xl"
                       onChange={handleChange}
                       data-id={workExperience.id}
-                      value={workExperience.JobTitle}
+                      value={workExperience.Company}
                     />
                     {/* Large Screen */}
                   </div>
@@ -175,19 +272,20 @@ function WorkExperience() {
               </div>
             </div>
           ))}
+          {/* <button type="submit" className="mt-5 px-5 py-2 bg-blue-500 text-white rounded-lg">Save Work Experiences</button> */}
         </form>
 
         <div className="mt-3 flex items-center" id="AddBtn">
-          <button type="button" className="w-fit h-fit p-2 shadow-xl drop-shadow-xl rounded-xl hover:scale-110" onClick={addField} id="addBtn1">
+          <button type="button" className='h-fit w-fit p-3 hover:scale-110 rounded-xl shadow-xl drop-shadow-xl' onClick={addField}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
             </svg>
           </button>
-          <p className="ml-5 text-base lg:text-lg font-semibold">Add more job Experience</p>
+          <p className="px-2 text-lg">Add more</p>
         </div>
       </main>
     </>
   );
-}
+})
 
 export default WorkExperience;

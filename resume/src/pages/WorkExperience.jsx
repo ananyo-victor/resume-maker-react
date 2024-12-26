@@ -7,7 +7,7 @@ import Preview from '../components/Preview';
 const WorkExperience = forwardRef(({ formRef }, ref) => {
   const user = Cookies.get('user');
   const { setButton } = useContext(UserContext);
-  const [isLoaded, setIsLoaded] = useState(false); 
+  const [isLoaded, setIsLoaded] = useState(false);
   const [workExperience, setWorkExperience] = useState([
     {
       _id: "",
@@ -43,30 +43,31 @@ const WorkExperience = forwardRef(({ formRef }, ref) => {
       // console.log(user);
 
       for (let i in data.data) {
-        // console.log(data.data[i]._id);
         if (user === data.data[i]._id) {
           console.log("matched");
-          setWorkExperience(data.data[i].workExperience.map(work => ({
-            _id: work._id ?? "",
-            id: work.id ?? "",
-            Position: work.Position ?? "",
-            Company: work.Company ?? "",
-            StartDate: work.StartDate ?? "",
-            EndDate: work.EndDate ?? "",
-            Current: work.Current ?? ""
-          })));
-          break;
-        }
-        else {
-          setWorkExperience(workExperience.map(work => ({
-            _id: work._id ?? "",
-            id: work.id ?? "",
-            Position: work.Position ?? "",
-            Company: work.Company ?? "",
-            StartDate: work.StartDate ?? "",
-            EndDate: work.EndDate ?? "",
-            Current: work.Current ?? ""
-          })));
+          if (data.data[i].workExperience[0]._id) {
+            setWorkExperience(data.data[i].workExperience.map(work => ({
+              _id: work._id ?? "",
+              id: work.id ?? "",
+              Position: work.Position ?? "",
+              Company: work.Company ?? "",
+              StartDate: work.StartDate ?? "",
+              EndDate: work.EndDate ?? "",
+              Current: work.Current ?? ""
+            })));
+            break;
+          }
+          else {
+            setWorkExperience(workExperience.map(work => ({
+              _id: work._id ?? "",
+              id: work.id ?? "",
+              Position: work.Position ?? "",
+              Company: work.Company ?? "",
+              StartDate: work.StartDate ?? "",
+              EndDate: work.EndDate ?? "",
+              Current: work.Current ?? ""
+            })));
+          }
         }
       }
 
@@ -81,7 +82,6 @@ const WorkExperience = forwardRef(({ formRef }, ref) => {
   const handleChange = (event) => {
     const { name, value, dataset } = event.target; // Get field name and value
     const id = parseInt(dataset.id); // Convert dataset id to integer
-    // console.log(`Updating ID: ${id}, Field: ${name}, Value: ${value}`);
     setWorkExperience((prevExperiences) =>
       prevExperiences.map((item) =>
         item.id === id ? { ...item, [name]: value } : item // Update only the matching item

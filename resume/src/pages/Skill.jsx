@@ -1,8 +1,18 @@
-import React, { useState } from 'react'
-import Preview from '../components/Preview'
+import React, { useState, useEffect, forwardRef, useContext } from 'react';
+import { UserContext } from '../UserContext';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import Preview from '../components/Preview';
 
-function Skill() {
-  const [skills, setSkills] = useState([{ id: 1, name: '', level: '' }]);
+const Skill = forwardRef(({ formRef }, ref) => {
+  const user = Cookies.get('user');
+  const [skills, setSkills] = useState([{ _id: '', id: 1, name: '', level: '' }]);
+  const { setButton } = useContext(UserContext);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleChange = (event) => {
     const { name, value, dataset } = event.target;
@@ -24,10 +34,72 @@ function Skill() {
   const removeField = (id) => {
     setSkills(skills.filter(item => item.id !== id));
   };
+  const fetchData = async () => {
+    try {
+      const data = await axios.get(`http://localhost:3001/resume/receive`);
+      // console.log(data);
+      // console.log(user);
 
-  const handleSubmit = (event) => {
+      for (let i in data.data) {
+        if (user === data.data[i]._id) {
+          console.log("matched ");
+          if (data.data[i].skills[0]._id) {
+            setSkills(data.data[i].skills.map(skill => ({
+              _id: skill._id ?? "",
+              id: skill.id ?? "",
+              name: skill.name ?? "",
+              level: skill.level ?? ""
+            })));
+          }
+          else {
+            setSkills(skills.map(skill => ({
+              _id: skill._id ?? "",
+              id: skill.id ?? "",
+              name: skill.name ?? "",
+              level: skill.level ?? ""
+            })));
+          }
+        }
+      }
+
+      setIsLoaded(true); // Mark as loaded
+    } catch (error) {
+      console.error('Error loading work experiences:', error);
+    }
+  };
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log({ skills });
+    for (const item of skills) {
+      try {
+        // console.log(item.Company);
+        if (item._id) {
+          console.log('put');
+          // If the item has an _id, it's an existing item and should be updated
+          await axios.put(`http://localhost:3001/resume/skills/${item._id}`, item);
+        } else {
+          console.log('post');
+          console.log(item);
+          await axios.post(`http://localhost:3001/resume/upload/skills/${user}`, item,
+          ).then(response => {
+            console.log('Data saved successfully:', response.data);
+          });
+        }
+      } catch (error) {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          console.error('Error Status:', error.response.status);
+          console.error('Error Data:', error.response.data);
+          console.error('Error Headers:', error.response.headers);
+        } else if (error.request) {
+          // Request was made but no response was received
+          console.error('No response received:', error.request);
+        } else {
+          // Something happened in setting up the request
+          console.error('Error Message:', error.message);
+        }
+        console.error('Request Config:', error.config);
+      }
+    }
   };
 
   return (
@@ -35,7 +107,7 @@ function Skill() {
       <main className="mx-auto max-w-screen md:max-w-[680px] lg:max-w-[1200px]">
         <Preview Name='Skills' Desc='Add your top skills here' />
 
-        <form id="we" className="flex w-full flex-col px-2" onSubmit={handleSubmit}>
+        <form id="we" className="flex w-full flex-col px-2" onSubmit={handleSubmit} ref={formRef}>
           {skills.map((skill) => (
             <div key={skill.id}>
 
@@ -163,6 +235,6 @@ function Skill() {
       </main>
     </>
   );
-}
+})
 
 export default Skill;

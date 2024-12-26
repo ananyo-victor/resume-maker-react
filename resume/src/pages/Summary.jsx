@@ -1,9 +1,22 @@
 // Summary.jsx
-import React, { useState, useRef } from 'react'
-import Preview from '../components/Preview'
+import React, { useState, useEffect, forwardRef, useContext, useRef } from 'react';
+import { UserContext } from '../UserContext';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import Preview from '../components/Preview';
 import Description from '../components/extra/Description';
 
-function Summary() {
+const Summary = () =>forwardRef(({ formRef }, ref) => {
+  const user = Cookies.get('user');
+  const { setButton } = useContext(UserContext);
+  const [isLoaded, setIsLoaded] = useState(false); 
+  const [summary, setSummary] = useState(
+    {
+      _id:"",
+      id:"",
+      strength:""
+    }
+  );
   const entries = [{
     key: 1,
     id: 'Hardworking and passionate job seeker with strong organizational skills eager to secure entry-levelJob Title position. Ready to help team achieve company goals.',
@@ -83,6 +96,71 @@ function Summary() {
       setFuture(newFuture);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Only log inputs if they are loaded
+    if (isLoaded) {
+      console.log("Inputs loaded:", summary);
+      setButton(false);
+      // sendToBackend(); // Call backend after inputs are updated
+    }
+  }, [summary, isLoaded]);
+
+  const fetchData = async () => {
+    try {
+      const data = await axios.get(`http://localhost:3001/resume/receive`);
+      console.log(data);
+      for (let i in data.data) {
+        if (user === data.data[i]._id) {
+          console.log("matched");
+          if (data.data[i].summary[0]._id) {
+            setSummary(data.data[i].summary.map(work => ({
+              _id: work._id ?? "",
+              id: work.id ?? "",
+              Position: work.Position ?? "",
+              Company: work.Company ?? "",
+              StartDate: work.StartDate ?? "",
+              EndDate: work.EndDate ?? "",
+              Current: work.Current ?? ""
+            })));
+            break;
+          }
+          else {
+            setSummary(summary.map(work => ({
+              _id: work._id ?? "",
+              id: work.id ?? "",
+              Position: work.Position ?? "",
+              Company: work.Company ?? "",
+              StartDate: work.StartDate ?? "",
+              EndDate: work.EndDate ?? "",
+              Current: work.Current ?? ""
+            })));
+          }
+        }
+      }
+
+      setIsLoaded(true); // Mark as loaded
+      // setError()
+      // setSuccess()
+    } catch (error) {
+      console.error('Error loading work experiences:', error);
+    }
+  };
+
+  const handleChange = (event) => {
+    const { name, value, dataset } = event.target; // Get field name and value
+    const id = parseInt(dataset.id); // Convert dataset id to integer
+    setSummary((prevExperiences) =>
+      prevExperiences.map((item) =>
+        item.id === id ? { ...item, [name]: value } : item // Update only the matching item
+      )
+    );
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     alert('Form data saved!');
@@ -97,11 +175,11 @@ function Summary() {
 
             <Preview Name='Strength' Desc='Add your strength here' />
 
-            <form class="mx-auto h-full lg:h-fit flex items-center w-full max-w-[520px] flex-col" onSubmit={handleSubmit}>
+            <form class="mx-auto h-full lg:h-fit flex items-center w-full max-w-[520px] flex-col" onSubmit={handleSubmit}  ref={formRef}>
 
-              <div ref={editorRef} contenteditable="true" name="" value="hi" id="BlankSpaceForStrength"
+              <input ref={editorRef} contenteditable="true" name="" value="hi" id="BlankSpaceForStrength"
                 class="lg:h-[380px] h-1/2 w-full max-w-[500px] rounded-md p-3 bg-white border-2 border-gray-400 drop-shadow-2xl overflow-y-scroll"
-                onChange={saveMemento}></div>
+                onChange={saveMemento}/>
 
               <div className='flex items-center w-full px-3 mt-2'>
                 <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -141,6 +219,6 @@ function Summary() {
       </main>
     </>
   )
-}
+})
 
 export default Summary
